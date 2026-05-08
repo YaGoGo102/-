@@ -1,45 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Takumei Remote Console</title>
+    <title>Takumei Remote</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
-        iframe { width: 100%; height: 100%; border: none; display: none; }
-        #setup { color: white; text-align: center; padding: 50px; }
-        input { padding: 10px; width: 300px; border-radius: 5px; border: none; margin-bottom: 10px; }
-        button { padding: 10px 20px; cursor: pointer; background: #0078d4; color: white; border: none; border-radius: 5px; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
-
-<div id="setup">
-    <h1>Takumei Remote</h1>
-    <p>CloudflareのURLを入力してください</p>
-    <input type="text" id="urlInput" placeholder="https://xxxx.trycloudflare.com"><br>
-    <button onclick="connect()">Windowsに接続</button>
-</div>
-
-<iframe id="remoteFrame" src=""></iframe>
-
-<script>
-    function connect() {
-        const url = document.getElementById('urlInput').value;
-        if (url) {
-            // Moonlight Web版をiframeで開き、入力されたURLを渡す準備をする
-            const frame = document.getElementById('remoteFrame');
-            const setup = document.getElementById('setup');
-            
-            // Moonlightの公式ウェブ版を読み込む
-            frame.src = "https://moonlight-stream.org/web/";
-            frame.style.display = "block";
-            setup.style.display = "none";
-            
-            alert("サイトが開いたら、今のURLを『Add Host』に入力してください！");
-        }
-    }
-</script>
-
+    <iframe src="https://moonlight-stream.org/web/"></iframe>
 </body>
 </html>
