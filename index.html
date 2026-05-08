@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Low Latency Remote Desktop</title>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        #remoteVideo { width: 100vw; height: 100vh; object-fit: contain; }
+        #status { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="status">Status: Disconnected</div>
+    <video id="remoteVideo" autoplay playsinline></video>
+
+    <script>
+        const video = document.getElementById('remoteVideo');
+        const status = document.getElementById('status');
+        const pc = new RTCPeerConnection({
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+
+        // 映像が届いたら表示
+        pc.ontrack = (event) => {
+            video.srcObject = event.streams[0];
+            status.innerText = "Status: Connected (Streaming)";
+        };
+
+        // シグナリング（本来はFirebase等で行うが、今回は手動コピペでテスト）
+        async function startConnection() {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            console.log("あなたのOffer (これをWindows側に渡す):", JSON.stringify(pc.localDescription));
+        }
+
+        // Windows側からのAnswerを受け取る関数
+        async function setRemoteAnswer(answerJson) {
+            const answer = new RTCSessionDescription(JSON.parse(answerJson));
+            await pc.setRemoteDescription(answer);
+        }
+
+        // キーボード・マウス信号をDataChannelで送る準備
+        const dc = pc.createDataChannel("control");
+        window.addEventListener('keydown', e => {
+            if(dc.readyState === 'open') dc.send(JSON.stringify({type: 'keydown', key: e.key}));
+        });
+
+        startConnection();
+    </script>
+</body>
+</html>
