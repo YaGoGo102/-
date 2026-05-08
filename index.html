@@ -2,10 +2,50 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Remote Control</title>
-    <style>body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡️ Ultra Fast Remote</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        iframe { width: 100%; height: 100%; border: none; display: none; }
+        #setup { color: white; text-align: center; padding-top: 50px; }
+        input { padding: 12px; width: 300px; border-radius: 5px; border: none; font-size: 16px; }
+        button { padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .hint { color: #888; font-size: 0.9em; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <iframe src="https://moonlight-stream.org/web/"></iframe>
+
+<div id="setup">
+    <h2>⚡️ Ultra Fast Remote</h2>
+    <input type="text" id="urlInput" placeholder="https://...trycloudflare.com">
+    <button onclick="startRemote()">接続開始</button>
+    <div class="hint">
+        <p>Windows側で出たURLを貼ってボタンを押してください。</p>
+        <p>※接続後、右上の歯車⚙️から「Bitrate: 5Mbps」に下げると爆速になります。</p>
+    </div>
+</div>
+
+<iframe id="remoteFrame" src=""></iframe>
+
+<script>
+    function startRemote() {
+        const url = document.getElementById('urlInput').value;
+        if (!url) return alert("URLを入力してください");
+
+        // URLを自動でクリップボードにコピー（Moonlight内のAdd Hostで貼り付けるため）
+        navigator.clipboard.writeText(url).then(() => {
+            const frame = document.getElementById('remoteFrame');
+            const setup = document.getElementById('setup');
+
+            // Moonlightを起動
+            frame.src = "https://moonlight-stream.org/web/";
+            frame.style.display = "block";
+            setup.style.display = "none";
+
+            alert("URLをコピーしました！\n1. Moonlightが開いたら『Add Host』を押す\n2. 貼り付け(Ctrl+V)してOKを押す");
+        });
+    }
+</script>
 </body>
 </html>
