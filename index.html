@@ -1,50 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>Low Latency Remote Desktop</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takumei Remote Console</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        #remoteVideo { width: 100vw; height: 100vh; object-fit: contain; }
-        #status { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 5px; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
+        iframe { width: 100%; height: 100%; border: none; display: none; }
+        #setup { color: white; text-align: center; padding: 50px; }
+        input { padding: 10px; width: 300px; border-radius: 5px; border: none; margin-bottom: 10px; }
+        button { padding: 10px 20px; cursor: pointer; background: #0078d4; color: white; border: none; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <div id="status">Status: Disconnected</div>
-    <video id="remoteVideo" autoplay playsinline></video>
 
-    <script>
-        const video = document.getElementById('remoteVideo');
-        const status = document.getElementById('status');
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        });
+<div id="setup">
+    <h1>Takumei Remote</h1>
+    <p>CloudflareのURLを入力してください</p>
+    <input type="text" id="urlInput" placeholder="https://xxxx.trycloudflare.com"><br>
+    <button onclick="connect()">Windowsに接続</button>
+</div>
 
-        // 映像が届いたら表示
-        pc.ontrack = (event) => {
-            video.srcObject = event.streams[0];
-            status.innerText = "Status: Connected (Streaming)";
-        };
+<iframe id="remoteFrame" src=""></iframe>
 
-        // シグナリング（本来はFirebase等で行うが、今回は手動コピペでテスト）
-        async function startConnection() {
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            console.log("あなたのOffer (これをWindows側に渡す):", JSON.stringify(pc.localDescription));
+<script>
+    function connect() {
+        const url = document.getElementById('urlInput').value;
+        if (url) {
+            // Moonlight Web版をiframeで開き、入力されたURLを渡す準備をする
+            const frame = document.getElementById('remoteFrame');
+            const setup = document.getElementById('setup');
+            
+            // Moonlightの公式ウェブ版を読み込む
+            frame.src = "https://moonlight-stream.org/web/";
+            frame.style.display = "block";
+            setup.style.display = "none";
+            
+            alert("サイトが開いたら、今のURLを『Add Host』に入力してください！");
         }
+    }
+</script>
 
-        // Windows側からのAnswerを受け取る関数
-        async function setRemoteAnswer(answerJson) {
-            const answer = new RTCSessionDescription(JSON.parse(answerJson));
-            await pc.setRemoteDescription(answer);
-        }
-
-        // キーボード・マウス信号をDataChannelで送る準備
-        const dc = pc.createDataChannel("control");
-        window.addEventListener('keydown', e => {
-            if(dc.readyState === 'open') dc.send(JSON.stringify({type: 'keydown', key: e.key}));
-        });
-
-        startConnection();
-    </script>
 </body>
 </html>
